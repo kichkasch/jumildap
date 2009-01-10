@@ -16,7 +16,7 @@ $ldapHost = "192.168.200.20";
 $ldapPort = 389;
 $ldapDomain = "dc=kichkasch,dc=local";
 $ldapFilter = "mozillaCustom4=*"; //"(&(mozillaCustom4=*)(cn=*Alexander Guse*))";
-
+$ldapSortAttribues = array('sn', 'givenname');
 
 $detailcn=$_REQUEST['detailcn'];
 $filter=$_REQUEST['filter'];
@@ -47,7 +47,10 @@ if ((isset ($addressList)) && (! empty ($addressList)))
 
 if ((isset ($addressListItem)) && (! empty ($addressListItem)))
 {
-	$addressList = $addressList . "@" . $addressListItem;
+	if ($addressList == "")
+		$addressList = $addressListItem;
+	else
+		$addressList = $addressList . "@" . $addressListItem;
 }
 $addressListHex = bin2hex($addressList);
 
@@ -91,6 +94,14 @@ if ($ds) {
                            // read-only access
 
     $sr=ldap_search($ds, $ldapDomain, $ldapFilter);  
+
+/*
+    foreach ($ldapSortAttributes as $eachSortAttribute) {
+    	ldap_sort($ds, $sr, $eachSortAttribute);
+    }*/
+    ldap_sort($ds, $sr, "sn");
+    ldap_sort($ds, $sr, "givenname");
+
     $info = ldap_get_entries($ds, $sr);
 
 	//echo "Detailcn: " . $detailcn;
@@ -98,10 +109,10 @@ if ($ds) {
     for ($i=0; $i<$info["count"]; $i++) {
 	if ((isset ($detailcn)) && (! empty ($detailcn)) && (! strcmp($detailcn, $info[$i]["cn"][0])) ){
 		echo "<hr/>";		
-		echo "<h1><a href='ldapmanager.php?filter=" . $ldapFilterHex . "&detailcn=" . $info[$i]["cn"][0] . "&addresslist=" . $addressListHex . "'>" .$info[$i]["givenname"][0] . " " . $info[$i]["sn"][0] . "</a> <a href='ldapmanager.php?filter=" . $ldapFilterHex . "&detailcn=" . $detailcn . "&addresslist=" . $addressListHex . "&addresslistitem=" . $info[$i]["cn"][0] .  "'><img src='img/liste.png' height='15'/></a></h1>";
+		echo "<h1><a href='ldapmanager.php?filter=" . $ldapFilterHex . "&detailcn=" . $info[$i]["cn"][0] . "&addresslist=" . $addressListHex . "'>" . $info[$i]["title"][0] . " " . $info[$i]["givenname"][0] . " " . $info[$i]["sn"][0] . "</a> <a href='ldapmanager.php?filter=" . $ldapFilterHex . "&detailcn=" . $detailcn . "&addresslist=" . $addressListHex . "&addresslistitem=" . $info[$i]["cn"][0] .  "'><img src='img/liste.png' height='15' title='Zu Addressliste hinzuf&uuml;gen'/></a></h1>";
 		print "<code>";
 		if ($info[$i]["mail"][0]) 
-			echo "<a href='mailto:" . $info[$i]["mail"][0] . "'>" . $info[$i]["mail"][0] . " <img src='img/email.png' height='15'/></a>\n\n";
+			echo "<a href='mailto:" . $info[$i]["mail"][0] . "'>" . $info[$i]["mail"][0] . " <img src='img/email.png' height='15' title='Email an diese Adresse senden'/></a>\n\n";
 		if ($info[$i]["homephone"][0])
 			print "Telefon (Home): ". $info[$i]["homephone"][0] . "\n";
 		if ($info[$i]["telephonenumber"][0])
@@ -111,7 +122,7 @@ if ($ds) {
 		print "\n";
 		if ($info[$i]["mozillahomelocalityname"][0])
 		{
-		print "<b>Adresse (zu Hause)</b><a href='addresspdf.php?line1=" . $info[$i]["cn"][0] . "&line2=" . $info[$i]["mozillahomestreet"][0] . "&line3=" . $info[$i]["mozillahomepostalcode"][0] . " " .  $info[$i]["mozillahomelocalityname"][0] . "&line4=" . $info[$i]["mozillahomecountryname"][0]  . "'><img src='img/pdf_icon.gif' height='15'></a>\n";
+		print "<b>Adresse (zu Hause)</b><a href='addresspdf.php?line1=" . $info[$i]["cn"][0] . "&line2=" . $info[$i]["mozillahomestreet"][0] . "&line3=" . $info[$i]["mozillahomepostalcode"][0] . " " .  $info[$i]["mozillahomelocalityname"][0] . "&line4=" . $info[$i]["mozillahomecountryname"][0]  . "'><img src='img/pdf_icon.gif' height='15' title='Paketaufdruck von dieser Adresse erstellen'></a>\n";
 		if ($info[$i]["mozillahomestreet"][0])
 			print $info[$i]["mozillahomestreet"][0] . "\n";
 		if ($info[$i]["mozillahomepostalcode"][0])
@@ -120,7 +131,36 @@ if ($ds) {
 			print $info[$i]["mozillahomelocalityname"][0] . "\n";
 		if ($info[$i]["mozillahomecountryname"][0])
 			print $info[$i]["mozillahomecountryname"][0] . "\n";
+		print "<br/>";
 		}
+
+
+		if ($info[$i]["l"][0])
+		{ // business address
+		if ($info[$i]["title"][0])
+		{
+			$title = $info[$i]["title"][0] . " ";
+		} else {
+			$title = "";
+		}
+		print "<b>Adresse (Arbeit)</b><a href='addresspdf.php?line1=" . $title . $info[$i]["cn"][0] . "&line2=" . $info[$i]["o"][0] . "&line3=" . $info[$i]["street"][0] . "&line4=" . $info[$i]["postalcode"][0] . " " .  $info[$i]["l"][0] . "&line5=" . $info[$i]["c"][0]  . "'><img src='img/pdf_icon.gif' height='15' title='Paketaufdruck von dieser Adresse erstellen'></a>\n";
+		if ($info[$i]["o"][0])
+			print $info[$i]["o"][0] . "\n";
+		if ($info[$i]["street"][0])
+			print $info[$i]["street"][0] . "\n";
+		if ($info[$i]["postalcode"][0])
+			print $info[$i]["postalcode"][0] . " ";
+		if ($info[$i]["l"][0])
+			print $info[$i]["l"][0] . "\n";
+		if ($info[$i]["c"][0])
+			print $info[$i]["c"][0] . "\n";
+		}
+
+		if ($info[$i]["mozillahomeurl"][0])
+		{
+			print "\nHome page: <a href='http://". $info[$i]["mozillahomeurl"][0] . "'>". $info[$i]["mozillahomeurl"][0] . "</a>\n";
+		}
+
 		print "</code>";
 		echo "<hr/> ";		
 	} else {	
