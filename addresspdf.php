@@ -14,11 +14,8 @@ $addresslist = hex2bin($addresslist);
 $pdf->SetFont('Arial','',12);
 
 
-$ldapHost = "192.168.200.20";
-$ldapPort = 389;
-$ldapDomain = "dc=kichkasch,dc=local";
-/* $ldapFilter = "mozillaCustom4=*"; //"(&(mozillaCustom4=*)(cn=*Alexander Guse*))"; */
-
+include 'config.php';
+include 'tools.php';
 
 
 $ds=ldap_connect($ldapHost, $ldapPort);  // must be a valid LDAP server!
@@ -69,14 +66,4 @@ $pdf->Cell(40,10,utf8_decode($line5),0,0);
 
 }
 $pdf->Output("addressoutput.pdf","I");
-
-// Convert a hex-string to binary-string (the way back from bin2hex)
-
-function hex2bin($h)
-  {
-  if (!is_string($h)) return null;
-  $r='';
-  for ($a=0; $a<strlen($h); $a+=2) { $r.=chr(hexdec($h{$a}.$h{($a+1)})); }
-  return $r;
-  }
 ?>

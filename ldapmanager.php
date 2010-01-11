@@ -6,18 +6,16 @@
 <!--<meta http-equiv="content-type" content="text/html; charset=iso-8859-1"/> -->
 <meta name="description" content="description"/>
 <meta name="keywords" content="keywords"/> 
-<meta name="author" content="author"/> 
+<meta name="author" content="Michael Pilgermann"/> 
 <link rel="stylesheet" type="text/css" href="default.css" media="screen"/>
 <title>JuMiLDAP Manager</title>
 </head>
 
 <?php
-$ldapHost = "192.168.200.20";
-$ldapPort = 389;
-$ldapDomain = "dc=kichkasch,dc=local";
-$ldapFilter = "mozillaCustom4=*"; //"(&(mozillaCustom4=*)(cn=*Alexander Guse*))";
-$ldapSortAttribues = array('sn', 'givenname');
+include 'config.php';
+include 'tools.php';
 
+/* Evaluate parameters */
 $detailcn=$_REQUEST['detailcn'];
 $filter=$_REQUEST['filter'];
 $namefilter=$_REQUEST['namefilter'];
@@ -27,7 +25,7 @@ $addressListItem=$_REQUEST['addresslistitem'];
 
 if ((isset ($filter)) && (! empty ($filter)))
 {
-	$ldapFilter = hex2bin($filter);
+	$ldapFilter = hex2bin($filter); /* hex encoding of filter allows for special characters in filter to be passed on through URL*/
 }
 
 if ((isset ($namefilter)) && (! empty ($namefilter)))
@@ -36,7 +34,7 @@ if ((isset ($namefilter)) && (! empty ($namefilter)))
 	$firstName = $_REQUEST['firstname'];
 	$ldapFilter = "(&(sn=". $surName .")(givenname=". $firstName ."))";
 }
-$ldapFilterHex = bin2hex($ldapFilter);
+$ldapFilterHex = bin2hex($ldapFilter); /* hex encoding of filter allows for special characters in filter to be passed on through URL*/
 
 if ((isset ($addressList)) && (! empty ($addressList)))
 {
@@ -95,19 +93,13 @@ if ($ds) {
 
     $sr=ldap_search($ds, $ldapDomain, $ldapFilter);  
 
-/*
-    foreach ($ldapSortAttributes as $eachSortAttribute) {
-    	ldap_sort($ds, $sr, $eachSortAttribute);
-    }*/
     ldap_sort($ds, $sr, "sn");
     ldap_sort($ds, $sr, "givenname");
 
     $info = ldap_get_entries($ds, $sr);
 
-	//echo "Detailcn: " . $detailcn;
-	//echo "Filter: " . $ldapFilter;
     for ($i=0; $i<$info["count"]; $i++) {
-	if ((isset ($detailcn)) && (! empty ($detailcn)) && (! strcmp($detailcn, $info[$i]["cn"][0])) ){
+	 if ((isset ($detailcn)) && (! empty ($detailcn)) && (! strcmp($detailcn, $info[$i]["cn"][0])) ){
 		echo "<hr/>";		
 		echo "<h1><a href='ldapmanager.php?filter=" . $ldapFilterHex . "&detailcn=" . $info[$i]["cn"][0] . "&addresslist=" . $addressListHex . "'>" . $info[$i]["title"][0] . " " . $info[$i]["givenname"][0] . " " . $info[$i]["sn"][0] . "</a> <a href='ldapmanager.php?filter=" . $ldapFilterHex . "&detailcn=" . $detailcn . "&addresslist=" . $addressListHex . "&addresslistitem=" . $info[$i]["cn"][0] .  "'><img src='img/liste.png' height='15' title='Zu Addressliste hinzuf&uuml;gen'/></a></h1>";
 		print "<code>";
@@ -191,14 +183,6 @@ if ($ds) {
 			</ul>
 			</form>
 
-<!--
-			<h1>Gruppenfilter</h1>
-			<ul>
-				<li><input type="checkbox" name="micha" checked/> Micha</li>
-				<li><input type="checkbox" name="jule" checked/> Jule</li>
-				<li><input type="checkbox" name="gxp" checked/> GXP</li>
-				<li><input type="checkbox" name="fhh" checked/> FHH</li>
-			</ul> -->
 
 			<h1>Adressliste</h1>
 			<form action="addresspdf.php">
@@ -232,16 +216,3 @@ if ($ds) {
 </body>
 
 </html>
-
-
-<?php
-// Convert a hex-string to binary-string (the way back from bin2hex)
-
-function hex2bin($h)
-  {
-  if (!is_string($h)) return null;
-  $r='';
-  for ($a=0; $a<strlen($h); $a+=2) { $r.=chr(hexdec($h{$a}.$h{($a+1)})); }
-  return $r;
-  }
-?>
