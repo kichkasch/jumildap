@@ -120,28 +120,32 @@ if ($ds) {
 
     $sr=ldap_search($ds, $ldapDomain, $ldapFilter);  
 
-    ldap_sort($ds, $sr, "sn");
-    ldap_sort($ds, $sr, "givenname");
+	 foreach ($ldapSortAttribues as $sortAtt) {
+	 	ldap_sort($ds, $sr, $sortAtt);
+	 }
+
+/*    ldap_sort($ds, $sr, "sn");
+    ldap_sort($ds, $sr, "givenname"); */
 
     $info = ldap_get_entries($ds, $sr);
 
     for ($i=0; $i<$info["count"]; $i++) {
 	 if ((isset ($detailcn)) && (! empty ($detailcn)) && (! strcmp($detailcn, $info[$i]["cn"][0])) ){
 		echo "<hr/>";		
-		echo "<h1><a href='ldapmanager.php?filter=" . $ldapFilterHex . "&detailcn=" . $info[$i]["cn"][0] . "&addresslist=" . $addressListHex . "'>" . $info[$i]["title"][0] . " " . $info[$i]["givenname"][0] . " " . $info[$i]["sn"][0] . "</a> <a href='ldapmanager.php?filter=" . $ldapFilterHex . "&detailcn=" . $detailcn . "&addresslist=" . $addressListHex . "&addresslistitem=" . $info[$i]["cn"][0] .  "'><img src='img/liste.png' height='15' title='Zu Addressliste hinzuf&uuml;gen'/></a></h1>";
+		echo "<h1><a href='ldapmanager.php?filter=" . $ldapFilterHex . "&detailcn=" . $info[$i]["cn"][0] . "&addresslist=" . $addressListHex . "'>" . $info[$i]["title"][0] . " " . $info[$i]["givenname"][0] . " " . $info[$i]["sn"][0] . "</a> <a href='ldapmanager.php?filter=" . $ldapFilterHex . "&detailcn=" . $detailcn . "&addresslist=" . $addressListHex . "&addresslistitem=" . $info[$i]["cn"][0] .  "'><img src='img/liste.png' height='15' title='" . $ST_TOOLTIP_ADDTOLIST . "'/></a></h1>";
 		print "<code>";
 		if ($info[$i]["mail"][0]) 
-			echo "<a href='mailto:" . $info[$i]["mail"][0] . "'>" . $info[$i]["mail"][0] . " <img src='img/email.png' height='15' title='Email an diese Adresse senden'/></a>\n\n";
+			echo "<a href='mailto:" . $info[$i]["mail"][0] . "'>" . $info[$i]["mail"][0] . " <img src='img/email.png' height='15' title='" . $ST_TOOLTIP_EMAIL . "'/></a>\n\n";
 		if ($info[$i]["homephone"][0])
-			print "Telefon (Home): ". $info[$i]["homephone"][0] . "\n";
+			print $ST_DETAIL_HOMEPHONE . ": ". $info[$i]["homephone"][0] . "\n";
 		if ($info[$i]["telephonenumber"][0])
-			print "Telefon (Arbeit): ". $info[$i]["telephonenumber"][0] . "\n";
+			print $ST_DETAIL_WORKPHONE . ": ". $info[$i]["telephonenumber"][0] . "\n";
 		if ($info[$i]["mobile"][0])
-			print "Telefon (Handy): ". $info[$i]["mobile"][0] . "\n";
+			print $ST_DETAIL_MOBILEPHONE . ": ". $info[$i]["mobile"][0] . "\n";
 		print "\n";
 		if ($info[$i]["mozillahomelocalityname"][0])
 		{
-		print "<b>Adresse (zu Hause)</b><a href='addresspdf.php?line1=" . $info[$i]["cn"][0] . "&line2=" . $info[$i]["mozillahomestreet"][0] . "&line3=" . $info[$i]["mozillahomepostalcode"][0] . " " .  $info[$i]["mozillahomelocalityname"][0] . "&line4=" . $info[$i]["mozillahomecountryname"][0]  . "'><img src='img/pdf_icon.gif' height='15' title='Paketaufdruck von dieser Adresse erstellen'></a>\n";
+		print "<b>" . $ST_DETAIL_HOMEADDRESS . "</b><a href='addresspdf.php?line1=" . $info[$i]["cn"][0] . "&line2=" . $info[$i]["mozillahomestreet"][0] . "&line3=" . $info[$i]["mozillahomepostalcode"][0] . " " .  $info[$i]["mozillahomelocalityname"][0] . "&line4=" . $info[$i]["mozillahomecountryname"][0]  . "'><img src='img/pdf_icon.gif' height='15' title='" . $ST_TOOLTIP_LABEL . "'></a>\n";
 		if ($info[$i]["mozillahomestreet"][0])
 			print $info[$i]["mozillahomestreet"][0] . "\n";
 		if ($info[$i]["mozillahomepostalcode"][0])
@@ -162,7 +166,7 @@ if ($ds) {
 		} else {
 			$title = "";
 		}
-		print "<b>Adresse (Arbeit)</b><a href='addresspdf.php?line1=" . $title . $info[$i]["cn"][0] . "&line2=" . $info[$i]["o"][0] . "&line3=" . $info[$i]["street"][0] . "&line4=" . $info[$i]["postalcode"][0] . " " .  $info[$i]["l"][0] . "&line5=" . $info[$i]["c"][0]  . "'><img src='img/pdf_icon.gif' height='15' title='Paketaufdruck von dieser Adresse erstellen'></a>\n";
+		print "<b>" . $ST_DETAIL_WORKADDRESS . "</b><a href='addresspdf.php?line1=" . $title . $info[$i]["cn"][0] . "&line2=" . $info[$i]["o"][0] . "&line3=" . $info[$i]["street"][0] . "&line4=" . $info[$i]["postalcode"][0] . " " .  $info[$i]["l"][0] . "&line5=" . $info[$i]["c"][0]  . "'><img src='img/pdf_icon.gif' height='15' title='" . $ST_TOOLTIP_LABEL . "'></a>\n";
 		if ($info[$i]["o"][0])
 			print $info[$i]["o"][0] . "\n";
 		if ($info[$i]["street"][0])
@@ -177,7 +181,7 @@ if ($ds) {
 
 		if ($info[$i]["mozillahomeurl"][0])
 		{
-			print "\nHome page: <a href='http://". $info[$i]["mozillahomeurl"][0] . "'>". $info[$i]["mozillahomeurl"][0] . "</a>\n";
+			print "\n" . $ST_DETAIL_HOMEPAGE . ": <a href='http://". $info[$i]["mozillahomeurl"][0] . "'>". $info[$i]["mozillahomeurl"][0] . "</a>\n";
 		}
 
 		print "</code>";
@@ -199,19 +203,19 @@ if ($ds) {
 
 		<div class="sidenav">
 
-			<h1>Namensfilter</h1>
+			<h1><?php echo $ST_NAME_FILTER ?></h1>
 			<form action="ldapmanager.php">
 			<input type="hidden" name="namefilter" value="1"/>
 			<input type="hidden" name="addresslist" value="<?php echo $addressListHex?>"/>
 			<ul>
-				<li>Name<br/><input name="surname" value="*"/></li>
-				<li>Vorname<br/><input name="firstname" value="*"/></li>
-				<li><input type="submit" value="Filter anwenden"/></li>
+				<li><?php echo $ST_NAME ?><br/><input name="surname" value="*"/></li>
+				<li><?php echo $ST_FIRSTNAME ?><br/><input name="firstname" value="*"/></li>
+				<li><input type="submit" value="<?php echo $ST_APPLY_FILTER ?>"/></li>
 			</ul>
 			</form>
 
 
-			<h1>Adressliste</h1>
+			<h1><?php echo $ST_ADDRESS_LIST ?></h1>
 			<form action="addresspdf.php">
 			<input type="hidden" name="mode" value="addresslist"/>
 			<input type="hidden" name="addresslist" value="<?php echo $addressListHex?>"/>
@@ -225,7 +229,7 @@ if ($ds) {
 				}
 				?>
 				</select></li>
-				<li><input type="button" name="emptyList" value="Reset" onclick="window.location.href='ldapmanager.php?filter=<?php echo $ldapFilterHex . "&detailcn=" . $detailcn; ?>'"> <input type="submit" value="Liste Drucken"/></li>
+				<li><input type="button" name="emptyList" value="<?php echo $ST_BUTTON_RESET ?>" onclick="window.location.href='ldapmanager.php?filter=<?php echo $ldapFilterHex . "&detailcn=" . $detailcn; ?>'"> <input type="submit" value="<?php echo $ST_BUTTON_PRINTLIST ?>"/></li>
 			</ul>
 			</form>
 
@@ -235,7 +239,7 @@ if ($ds) {
 
 	</div>
 
-	<div class="footer">&copy; 2009 <a href="mailto:michael.pilgermann@gmx.de">Michael Pilgermann</a>. Valid <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a> &amp; <a href="http://validator.w3.org/check?uri=referer">XHTML</a>. Template design by <a href="http://templates.arcsin.se">Arcsin</a>
+	<div class="footer">&copy; 2010 <a href="mailto:kichkasch@gmx.de">Michael Pilgermann</a>. Valid <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a> &amp; <a href="http://validator.w3.org/check?uri=referer">XHTML</a>. Template design by <a href="http://templates.arcsin.se">Arcsin</a>
 	</div>
 
 </div>

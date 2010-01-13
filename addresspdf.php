@@ -25,6 +25,7 @@ this web frontend is not capable of supporting this.
 */
 
 require('fpdf/fpdf.php');
+include 'tools.php';
 
 $mode=$_REQUEST['mode'];
 $addresslist = $_REQUEST['addresslist'];
@@ -40,7 +41,6 @@ $pdf->SetFont('Arial','',12);
 
 
 include 'config.php';
-include 'tools.php';
 
 
 $ds=ldap_connect($ldapHost, $ldapPort);  // must be a valid LDAP server!
@@ -52,7 +52,7 @@ if ($ds) {
                            // read-only access
 
     $pdf->SetFont('Arial','B',12);
-    $pdf->MultiCell(80,6,"Adressliste" . "\n" . date(DATE_RFC822),0,1);
+    $pdf->MultiCell(80,6, $ST_ADDRESS_LIST . "\n" . date(DATE_RFC822),0,1);
     $pdf->SetFont('Arial','',12);
     $pdf->Cell(80,6,"",0,1);
 

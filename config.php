@@ -37,6 +37,9 @@ $ldapDomain = "dc=kichkasch,dc=local";
 $ldapFilter = "mozillaCustom4=*";
 $ldapSortAttribues = array('sn', 'givenname');
 
+/* Choose your language file - check languages directory for options */
+include 'languages/lang_en.php'; 
+/* include 'languages/lang_de.php';	*/
  
 /* !--
  
