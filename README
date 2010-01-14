@@ -1,0 +1,6 @@
+README for JuMiLDAP
+
+JuMiLDAP is a very simple PHP based web frontend for browsing the content of an LDAP based address book. 
+
+First source of information is its home page:
+http://github.com/kichkasch/jumildap
