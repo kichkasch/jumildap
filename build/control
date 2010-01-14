@@ -1,0 +1,8 @@
+Package: jumildap
+Version: 0.1
+Section: server
+Maintainer: Michael Pilgermann <kichkasch@gmx.de>
+Architecture: all
+Depends: apache2, php5, php-fpdf
+Homepage: http://github.com/kichkasch/jumildap
+Description: Simple LDAP address book browser
