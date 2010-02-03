@@ -11,9 +11,6 @@ VERSION="0.1"
 PGP_KEYID ="1B09FB51"
 BUILD_VERSION = "0ubuntu4"
 
-## NO leading slash!!!
-#WEBSERVER_DATAFOLDER="var/www/"
-#WEBSERVER_SUBFOLDER="jumildap"
 
 clean:
 	rm -f *~ languages/*~ build/*~ build/debian/*~
