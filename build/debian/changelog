@@ -4,17 +4,20 @@ jumildap (0.1-0ubuntu4) karmic; urgency=low
 
  -- Michael Pilgermann <kichkasch@gmx.de>  Wed, 03 Feb 2010 11:35:53 +0100
 
+
 jumildap (0.1-0ubuntu3) karmic; urgency=low
 
   * Again, added missing files to Ubuntu source package
 
  -- Michael Pilgermann <kichkasch@gmx.de>  Wed, 03 Feb 2010 11:34:43 +0100
 
+
 jumildap (0.1-0ubuntu2) karmic; urgency=low
 
   * Added some missing files to Ubuntu source package
 
  -- Michael Pilgermann <kichkasch@gmx.de>  Wed, 03 Feb 2010 11:03:27 +0100
+
 
 jumildap (0.1-0ubuntu1) karmic; urgency=low
 
