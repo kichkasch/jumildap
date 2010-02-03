@@ -30,16 +30,7 @@ sdist: clean
 
 # instructions for building Desktop packages
 # 1. Ubuntu deb
-## (install with: sudo dpkg -i jumildap-$VERSION.deb)
-#dist: clean
-#	mkdir -p build/ubuntu/DEBIAN
-#	cp build/control build/ubuntu/DEBIAN/control
-#	mkdir -p build/ubuntu/$(WEBSERVER_DATAFOLDER)/$(WEBSERVER_SUBFOLDER)
-#	cp *.php *.css COPYING README build/ubuntu/$(WEBSERVER_DATAFOLDER)/$(WEBSERVER_SUBFOLDER)
-#	cp -r img languages build/ubuntu/$(WEBSERVER_DATAFOLDER)/$(WEBSERVER_SUBFOLDER)
-#	cd build && dpkg --build ubuntu/ $(PACKAGE_NAME)-$(VERSION).deb
-#	rm -rf build/ubuntu
-
+#
 # All up-to-date information must be applied to sub dir build/debian in advance
 sdist_ubuntu: sdist
 	export DEBFULLNAME="Michael Pilgermann"
