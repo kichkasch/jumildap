@@ -1,0 +1,14 @@
+Source: jumildap
+Section: web
+Priority: optional
+Maintainer: Michael Pilgermann <kichkasch@gmx.de>
+Build-Depends: cdbs (>= 0.4.49), debhelper (>= 7), quilt, patchutils (>= 0.2.25)
+Standards-Version: 3.8.3.0
+Homepage: http://freshmeat.net/projects/jumildap
+
+Package: jumildap
+Architecture: all
+Depends: apache2, php5, php5-ldap, ${misc:Depends}
+Suggests: php-fpdf
+Description: Simple LDAP address book viewer 
+ JuMiLDAP is a very simple PHP based web frontend for browsing the content of an LDAP based address book.

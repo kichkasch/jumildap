@@ -1,0 +1,4 @@
+*.php var/www/jumildap
+*.css var/www/jumildap
+img/* var/www/jumildap/img
+languages/* var/www/jumildap/languages/
