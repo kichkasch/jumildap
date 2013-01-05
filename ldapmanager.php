@@ -33,9 +33,59 @@ this web frontend is not capable of supporting this.
 <!--<meta http-equiv="content-type" content="text/html; charset=iso-8859-1"/> -->
 <meta name="description" content="description"/>
 <meta name="keywords" content="keywords"/> 
-<meta name="author" content="Michael Pilgermann"/> 
+<meta name="author" content="Michael" /> 
 <link rel="stylesheet" type="text/css" href="default.css" media="screen"/>
+
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css" />
+    <style>
+        label, input { display:block; }
+        input.text { margin-bottom:12px; width:95%; padding: .4em; }
+        fieldset { padding:0; border:0; margin-top:25px; }
+        div#users-contain { width: 350px; margin: 20px 0; }
+        div#users-contain table { margin: 1em 0; border-collapse: collapse; width: 100%; }
+        div#users-contain table td, div#users-contain table th { border: 1px solid #eee; padding: .6em 10px; text-align: left; }
+        .ui-dialog .ui-state-error { padding: .3em; }
+        .validateTips { border: 1px solid transparent; padding: 0.3em; }
+    </style>
+    <script src="http://code.jquery.com/jquery-1.8.3.js"></script>
+    <script src="http://code.jquery.com/ui/1.9.2/jquery-ui.js"></script>
+
 <title>JuMiLDAP Manager</title>
+
+    <script>
+    $(function() {
+    	var name = $( "#name" ),
+            givenname = $( "#givenname" ),
+            email = $( "#email" );
+            
+        $( "#dialogAdd" ).dialog({ 
+        		autoOpen: false,
+				height: 400,
+            width: 400,				
+            modal: true,       		
+            buttons: {
+                "Create this account": function() {
+								$.ajax({
+								  url: "ldap_mods.php",
+								  data: {
+								  		"familyName": name.val(),
+								  		"givenName": givenname.val(),
+								  		"email": email.val()
+								  		}
+								}).done(function(data) {
+								  alert("OK");
+								});                			
+                	
+                        $( this ).dialog( "close" );
+                },
+                Cancel: function() {
+                    $( this ).dialog( "close" );
+                }
+            }
+       });
+    });
+    </script>
+
 </head>
 
 <?php
@@ -111,9 +161,7 @@ $addressListHex = bin2hex($addressList);
 <?php
 
 $ds=ldap_connect($ldapHost, $ldapPort);  // must be a valid LDAP server!
-
 if (ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3)) {
-
 if ($ds) { 
     $r=ldap_bind($ds);     // this is an "anonymous" bind, typically
                            // read-only access
@@ -232,6 +280,21 @@ if ($ds) {
 				<li><input type="button" name="emptyList" value="<?php echo $ST_BUTTON_RESET ?>" onclick="window.location.href='ldapmanager.php?filter=<?php echo $ldapFilterHex . "&detailcn=" . $detailcn; ?>'"> <input type="submit" value="<?php echo $ST_BUTTON_PRINTLIST ?>"/></li>
 			</ul>
 			</form>
+			
+			<h1>Modifications</h1>
+			<input type="button" value="Add new entry to address book"/ onclick="$( '#dialogAdd').dialog( 'open' );" >			
+			<div id="dialogAdd" title="Create new address book entry">
+		    <form>
+		    <fieldset>
+		        <label for="givenname">Given Name</label>
+		        <input type="text" name="givenname" id="givenname" class="text ui-widget-content ui-corner-all" />
+		        <label for="name">Family Name</label>
+		        <input type="text" name="name" id="name" class="text ui-widget-content ui-corner-all" />
+		        <label for="email">Email</label>
+		        <input type="text" name="email" id="email" value="" class="text ui-widget-content ui-corner-all" />
+		    </fieldset>
+		    </form>			
+    </div>
 
 		</div>
 
