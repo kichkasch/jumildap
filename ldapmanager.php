@@ -59,7 +59,7 @@ this web frontend is not capable of supporting this.
     			name = $( "#name" ),
             givenname = $( "#givenname" );
          
-         <!-- map json identifiers to ldap schema names -->
+         <!-- map json identifiers to ldap schema names -->			
 			fields_mapping = {
 				"#email": "mail",
 				"#nickname": "mozillaNickname",
@@ -108,6 +108,22 @@ this web frontend is not capable of supporting this.
 										parameters[fields_mapping[key]] = $("" + key).val();
 									}
 								}
+								stGroups = "";
+								if ($('#checkGroup1').attr('checked')) {
+									stGroups = stGroups + 'jule,'; 
+								}
+								if ($('#checkGroup2').attr('checked')) {
+									stGroups = stGroups + 'micha,'; 
+								}
+								if ($('#checkGroup3').attr('checked')) {
+									stGroups = stGroups + 'fhh,'; 
+								}
+								if ($('#checkGroup4').attr('checked')) {
+									stGroups = stGroups + 'gxp,'; 
+								}
+								if (stGroups){
+									parameters['mozillaCustom4'] = stGroups;
+								}
 								$.ajax({
 								  url: "ldap_mods.php",
 								  data: parameters
@@ -122,7 +138,8 @@ this web frontend is not capable of supporting this.
                 }
             },
             open: function() {
-                $('#tabs_fields').tabs();
+               $('#tabs_fields').tabs();
+                
             }            
        });
        
@@ -449,10 +466,10 @@ if ($ds) {
 						        <input type="text" name="otherDesc" id="otherDesc" class="text ui-widget-content ui-corner-all" />
 						        <label for="otherGroupCB">Groups</label>
 									<div id="otherGroupCB">
-									    <input type="checkbox" id="checkGroup1" /><label for="checkGroup1">jule</label>
-									    <input type="checkbox" id="checkGroup2" /><label for="checkGroup2">micha</label>
+									    <input type="checkbox" id="checkGroup1" checked="checked"/><label for="checkGroup1">jule</label>
+									    <input type="checkbox" id="checkGroup2" checked="checked"/><label for="checkGroup2">micha</label>
 									    <input type="checkbox" id="checkGroup3" /><label for="checkGroup3">fhh</label>
-									    <input type="checkbox" id="checkGroup4" /><label for="checkGroup4">gxp</label>
+									    <input type="checkbox" id="checkGroup4" checked="checked"/><label for="checkGroup4">gxp</label>
 									</div>
 						    </fieldset>
 						    </form>			
