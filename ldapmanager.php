@@ -3,7 +3,7 @@
 /* !--
 JuMiLDAP - A Web-based LDAP browser
 by Michael Pilgermann (kichkasch@gmx.de)
-Copyright (C) 2010 Michael Pilgermann
+Copyright 2010 Michael Pilgermann
  
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -29,14 +29,15 @@ this web frontend is not capable of supporting this.
 <html>
 
 <head>
-<meta http-equiv="content-type" content="text/html; charset=UTF-32"/>
-<!--<meta http-equiv="content-type" content="text/html; charset=iso-8859-1"/> -->
+<!--<meta http-equiv="content-type" content="text/html; charset=UTF-32"/>-->
+<meta http-equiv="content-type" content="text/html; charset=iso-8859-1"/> 
 <meta name="description" content="description"/>
 <meta name="keywords" content="keywords"/> 
 <meta name="author" content="Michael" /> 
 <link rel="stylesheet" type="text/css" href="default.css" media="screen"/>
 
     <link rel="stylesheet" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css" />
+    
     <style>
         label, input { display:block; }
         input.text { margin-bottom:12px; width:95%; padding: .4em; }
@@ -54,26 +55,33 @@ this web frontend is not capable of supporting this.
 
     <script>
     $(function() {
-    	var name = $( "#name" ),
+    		var name = $( "#name" ),
             givenname = $( "#givenname" ),
             email = $( "#email" );
+
+		  $( "input[type=submit], button, input[type=button]" )
+		      .button();
+		  $( "#otherGroupCB").buttonset();
             
         $( "#dialogAdd" ).dialog({ 
+            resizable: false,
         		autoOpen: false,
-				height: 400,
-            width: 400,				
+				height: 600,
+            width: 500,				
             modal: true,       		
             buttons: {
                 "Create this account": function() {
-								$.ajax({
-								  url: "ldap_mods.php",
-								  data: {
+                			parameters = {
+                					"action": "addItem",
 								  		"familyName": name.val(),
 								  		"givenName": givenname.val(),
 								  		"email": email.val()
-								  		}
+								  		};
+								$.ajax({
+								  url: "ldap_mods.php",
+								  data: parameters
 								}).done(function(data) {
-								  alert("OK");
+		                    window.location.reload(true);
 								});                			
                 	
                         $( this ).dialog( "close" );
@@ -81,12 +89,41 @@ this web frontend is not capable of supporting this.
                 Cancel: function() {
                     $( this ).dialog( "close" );
                 }
-            }
+            },
+            open: function() {
+                $('#tabs_fields').tabs();
+            }            
+       });
+       
+       $( "#dialogConfirmDelete").dialog({
+            resizable: false,
+        		autoOpen: false,
+            height:180,
+            modal: true,
+            buttons: {
+                "Delete this item": function() {
+								$.ajax({
+								  url: "ldap_mods.php",
+								  data: {"action": "delItem", "del_distName": $(this).dialog("option", "distName")}
+								}).done(function(data) {
+		                    window.location.reload(true);
+								});                			
+                	
+                    $( this ).dialog( "close" );
+                },
+                Cancel: function() {
+                    $( this ).dialog( "close" );
+                }
+            },
+            open: function() {
+                $('#dialogDeleteSt').text($(this).dialog("option", "detailcn") );
+            }                        
        });
     });
     </script>
 
 </head>
+<body>
 
 <?php
 include 'config.php';
@@ -131,7 +168,6 @@ $addressListHex = bin2hex($addressList);
 
 ?>
 
-<body>
 <div class="container">
 	<div class="header">				
 		<div class="title">
@@ -159,6 +195,7 @@ $addressListHex = bin2hex($addressList);
 
 
 <?php
+$distName = "";
 
 $ds=ldap_connect($ldapHost, $ldapPort);  // must be a valid LDAP server!
 if (ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3)) {
@@ -179,6 +216,7 @@ if ($ds) {
 
     for ($i=0; $i<$info["count"]; $i++) {
 	 if ((isset ($detailcn)) && (! empty ($detailcn)) && (! strcmp($detailcn, $info[$i]["cn"][0])) ){
+	 	$distName = $info[$i]["dn"];
 		echo "<hr/>";		
 		echo "<h1><a href='ldapmanager.php?filter=" . $ldapFilterHex . "&detailcn=" . $info[$i]["cn"][0] . "&addresslist=" . $addressListHex . "'>" . $info[$i]["title"][0] . " " . $info[$i]["givenname"][0] . " " . $info[$i]["sn"][0] . "</a> <a href='ldapmanager.php?filter=" . $ldapFilterHex . "&detailcn=" . $detailcn . "&addresslist=" . $addressListHex . "&addresslistitem=" . $info[$i]["cn"][0] .  "'><img src='img/liste.png' height='15' title='" . $ST_TOOLTIP_ADDTOLIST . "'/></a></h1>";
 		print "<code>";
@@ -282,19 +320,120 @@ if ($ds) {
 			</form>
 			
 			<h1>Modifications</h1>
-			<input type="button" value="Add new entry to address book"/ onclick="$( '#dialogAdd').dialog( 'open' );" >			
+			<div style="margin:10pt;">
+			<button id="bAdd" onclick="$( '#dialogAdd').dialog( 'open' );" style="width:100%;">Add new entry</button>
+			<button id="bChange" onclick="alert('coming soon');"style="width:100%;">Change active entry</button>
+			<?php
+			echo "<button id=\"bDelete\" onclick=\"$('#dialogConfirmDelete').dialog( 'option', 'distName', '" . $distName . "' ); $('#dialogConfirmDelete').dialog( 'option', 'detailcn', '" . $detailcn . "' ); $( '#dialogConfirmDelete').dialog( 'open' );\" style=\"width:100%;\">";
+			?>
+			Delete active entry</button> 
+			
+			</div>
+			
 			<div id="dialogAdd" title="Create new address book entry">
-		    <form>
-		    <fieldset>
-		        <label for="givenname">Given Name</label>
-		        <input type="text" name="givenname" id="givenname" class="text ui-widget-content ui-corner-all" />
-		        <label for="name">Family Name</label>
-		        <input type="text" name="name" id="name" class="text ui-widget-content ui-corner-all" />
-		        <label for="email">Email</label>
-		        <input type="text" name="email" id="email" value="" class="text ui-widget-content ui-corner-all" />
-		    </fieldset>
-		    </form>			
-    </div>
+				<div id="tabs_fields">
+					    <ul>
+					      <li><a href="#tab-name">Name</a></li>
+					      <li><a href="#tab-phone">Phone</a></li>
+					      <li><a href="#tab-personal">Personal details</a></li>
+					      <li><a href="#tab-business">Business details</a></li>
+					      <li><a href="#tab-grouping">Misc</a></li>
+					    </ul>
+					    <div id="tab-name">
+						    <form>
+						    <fieldset>
+						        <label for="givenname">Given name</label>
+						        <input type="text" name="givenname" id="givenname" class="text ui-widget-content ui-corner-all" />
+						        <label for="name">Family name</label>
+						        <input type="text" name="name" id="name" class="text ui-widget-content ui-corner-all" />
+						        <label for="nickname">Nick name</label>
+						        <input type="text" name="nickname" id="nickname" class="text ui-widget-content ui-corner-all" />
+						        <label for="email">Email</label>
+						        <input type="text" name="email" id="email" value="" class="text ui-widget-content ui-corner-all" />
+						    </fieldset>
+						    </form>			
+					    </div>
+					    <div id="tab-phone">
+						    <form>
+						    <fieldset>
+						        <label for="workphone">Work phone</label>
+						        <input type="text" name="workphone" id="workphone" class="text ui-widget-content ui-corner-all" />
+						        <label for="homephone">Home phone</label>
+						        <input type="text" name="homephone" id="homephone" class="text ui-widget-content ui-corner-all" />
+						        <label for="fax">Fax</label>
+						        <input type="text" name="fax" id="fax" class="text ui-widget-content ui-corner-all" />
+						        <label for="mobile">Mobile phone</label>
+						        <input type="text" name="mobile" id="mobile" value="" class="text ui-widget-content ui-corner-all" />
+						    </fieldset>
+						    </form>			
+					    </div>
+					    <div id="tab-personal">
+						    <form>
+						    <fieldset>
+						        <label for="streetHome">Street</label>
+						        <input type="text" name="streetHome" id="streetHome" class="text ui-widget-content ui-corner-all" />
+						        <label for="street2Home">Street (more)</label>
+						        <input type="text" name="street2Home" id="street2Home" class="text ui-widget-content ui-corner-all" />
+						        <label for="cityHome">City (Locality)</label>
+						        <input type="text" name="cityHome" id="cityHome" class="text ui-widget-content ui-corner-all" />
+						        <label for="stateHome">State</label>
+						        <input type="text" name="stateHome" id="stateHome" value="" class="text ui-widget-content ui-corner-all" />
+						        <label for="zipHome">Zip code</label>
+						        <input type="text" name="zipHome" id="zipHome" value="" class="text ui-widget-content ui-corner-all" />
+						        <label for="countryHome">Country</label>
+						        <input type="text" name="countryHome" id="countryHome" value="" class="text ui-widget-content ui-corner-all" />
+						    </fieldset>
+						    </form>			
+					    </div>
+					    <div id="tab-business">
+						    <form>
+						    <fieldset>
+						        <label for="titleBusiness">Title/Position</label>
+						        <input type="text" name="titleBusiness" id="titleBusiness" class="text ui-widget-content ui-corner-all" />
+						        <label for="depBusiness">Department</label>
+						        <input type="text" name="depBusiness" id="depBusiness" class="text ui-widget-content ui-corner-all" />
+						        <label for="orgBusiness">Organizsation</label>
+						        <input type="text" name="orgBusiness" id="orgBusiness" class="text ui-widget-content ui-corner-all" />
+						        <label for="streetBusiness">Street</label>
+						        <input type="text" name="streetBusiness" id="streetBusiness" class="text ui-widget-content ui-corner-all" />
+						        <label for="street2Business">Street (more)</label>
+						        <input type="text" name="street2Business" id="street2Business" class="text ui-widget-content ui-corner-all" />
+						        <label for="cityBusiness">City (Locality)</label>
+						        <input type="text" name="cityBusiness" id="cityBusiness" class="text ui-widget-content ui-corner-all" />
+						        <label for="stateBusiness">State</label>
+						        <input type="text" name="stateBusiness" id="stateBusiness" value="" class="text ui-widget-content ui-corner-all" />
+						        <label for="zipBusiness">Zip code</label>
+						        <input type="text" name="zipBusiness" id="zipBusiness" value="" class="text ui-widget-content ui-corner-all" />
+						        <label for="countryBusiness">Country</label>
+						        <input type="text" name="countryBusiness" id="countryBusiness" value="" class="text ui-widget-content ui-corner-all" />
+						    </fieldset>
+						    </form>			
+					    </div>
+					    <div id="tab-grouping">
+						    <form>
+						    <fieldset>
+						        <label for="otherWeb">Web site</label>
+						        <input type="text" name="otherWeb" id="otherWeb" class="text ui-widget-content ui-corner-all" />
+						        <label for="otherDesc">Description</label>
+						        <input type="text" name="otherDesc" id="otherDesc" class="text ui-widget-content ui-corner-all" />
+						        <label for="otherGroupCB">Groups</label>
+									<div id="otherGroupCB">
+									    <input type="checkbox" id="checkGroup1" /><label for="checkGroup1">jule</label>
+									    <input type="checkbox" id="checkGroup2" /><label for="checkGroup2">micha</label>
+									    <input type="checkbox" id="checkGroup3" /><label for="checkGroup3">fhh</label>
+									    <input type="checkbox" id="checkGroup4" /><label for="checkGroup4">gxp</label>
+									</div>
+						    </fieldset>
+						    </form>			
+					    </div>
+				
+									
+				</div>
+		   </div> <!-- dialogAdd -->
+		   
+		   <div id="dialogConfirmDelete" title="Delete active entry">
+				<p><span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>Item <span id="dialogDeleteSt">...</span> will be deleted. Please confirm.</p>
+			</div>
 
 		</div>
 
