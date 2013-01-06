@@ -7,7 +7,6 @@ switch($action) {
 	case "addItem":
 			$detail_name=$_REQUEST['familyName'];
 			$detail_fistname=$_REQUEST['givenName'];
-			$detail_email=$_REQUEST['email'];
 			
 			$ds=ldap_connect($ldapHost, $ldapPort);  // must be a valid LDAP server! 
 			if ($ds) {
@@ -18,7 +17,14 @@ switch($action) {
 				   $info["sn"] = $detail_name;			//family name
 				   $info["givenName"] = $detail_fistname;
 				   $info["cn"] =  $info["givenName"] . " " . $info["sn"]; //display name
-				   $info["mail"] = $detail_email;
+				   
+					foreach ($_REQUEST as $key=>$value) {
+					  //echo "$key = " . urldecode($value) . "<br />\n";
+						if( ( strcmp($key, "givenName"))  && ( strcmp($key, "familyName")) && ( strcmp($key, "action"))   ) {
+							$info[$key] = $value;
+						}
+					}
+				   
 				   $info["objectclass"][0] = "inetOrgPerson";
 				   $info["objectclass"][1] = "mozillaAbPersonAlpha";
 				

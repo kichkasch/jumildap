@@ -55,9 +55,36 @@ this web frontend is not capable of supporting this.
 
     <script>
     $(function() {
-    		var name = $( "#name" ),
-            givenname = $( "#givenname" ),
-            email = $( "#email" );
+    		var 
+    			name = $( "#name" ),
+            givenname = $( "#givenname" );
+         
+         <!-- map json identifiers to ldap schema names -->
+			fields_mapping = {
+				"#email": "mail",
+				"#nickname": "mozillaNickname",
+				"#workphone": "telephoneNumber",
+				"#homephone": "homePhone",
+				"#fax": "facsimileTelephoneNumber",
+				"#mobile": "mobile",
+				"#streetHome": "mozillaHomeStreet",
+				"#street2Home": "mozillaHomeStreet2",
+				"#cityHome": "mozillaHomeLocalityName",
+				"#stateHome": "mozillaHomeState",
+				"#zipHome": "mozillaHomePostalCode",
+				"#countryHome": "mozillaHomeCountryName",
+				"#titleBusiness": "title",
+				"#depBusiness": "ou",
+				"#orgBusiness": "o",
+				"#streetBusiness": "street",
+				"#street2Business": "mozillaWorkStreet2",
+				"#cityBusiness": "l",
+				"#stateBusiness": "st",
+				"#zipBusiness": "postalCode",
+				"#countryBusiness": "c",
+				"#otherWeb": "mozillaHomeUrl",
+				"#otherDesc": "description"
+				};
 
 		  $( "input[type=submit], button, input[type=button]" )
 		      .button();
@@ -70,13 +97,17 @@ this web frontend is not capable of supporting this.
             width: 500,				
             modal: true,       		
             buttons: {
-                "Create this account": function() {
+                "Create this entry": function() {
                 			parameters = {
                 					"action": "addItem",
 								  		"familyName": name.val(),
-								  		"givenName": givenname.val(),
-								  		"email": email.val()
+								  		"givenName": givenname.val()
 								  		};
+								for (key in fields_mapping){
+									if ($("" + key).val()){
+										parameters[fields_mapping[key]] = $("" + key).val();
+									}
+								}
 								$.ajax({
 								  url: "ldap_mods.php",
 								  data: parameters
