@@ -89,6 +89,7 @@ this web frontend is not capable of supporting this.
 		  $( "input[type=submit], button, input[type=button]" )
 		      .button();
 		  $( "#otherGroupCB").buttonset();
+		  $( "#otherGroupCB1").buttonset();
             
         $( "#dialogAdd" ).dialog({ 
             resizable: false,
@@ -142,6 +143,64 @@ this web frontend is not capable of supporting this.
                 
             }            
        });
+
+        $( "#dialogChange" ).dialog({ 
+            resizable: false,
+        		autoOpen: false,
+				height: 600,
+            width: 500,				
+            modal: true,       		
+            buttons: {
+                "Modify this entry": function() {
+                			parameters = {
+                					"action": "modifyItem",
+								  		"familyName": name1.val(),
+								  		"givenName": givenname1.val()
+//								  		"familyName": "Test",
+//								  		"givenName": "Aanton"
+								  		};
+								for (key in fields_mapping){
+									if ($("" + key + "1").val()){
+										parameters[fields_mapping[key]] = $("" + key + "1").val();
+									}
+								}
+								stGroups = "";
+								if ($('#checkGroup11').attr('checked')) {
+									stGroups = stGroups + 'jule,'; 
+								}
+								if ($('#checkGroup12').attr('checked')) {
+									stGroups = stGroups + 'micha,'; 
+								}
+								if ($('#checkGroup13').attr('checked')) {
+									stGroups = stGroups + 'fhh,'; 
+								}
+								if ($('#checkGroup14').attr('checked')) {
+									stGroups = stGroups + 'gxp,'; 
+								}
+								if (stGroups){
+									parameters['mozillaCustom4'] = stGroups;
+								}
+								$.ajax({
+								  url: "ldap_mods.php",
+								  data: parameters
+								}).done(function(data) {
+		                    window.location.reload(true);
+								});                			
+                	
+                        $( this ).dialog( "close" );
+                },
+                Cancel: function() {
+                    $( this ).dialog( "close" );
+                }
+            },
+            open: function() {
+            	$('#name1').val('Test');
+            	$('#givenname1').val('Aanton')
+               $('#tabs_fields1').tabs();
+                
+            }            
+       });
+
        
        $( "#dialogConfirmDelete").dialog({
             resizable: false,
@@ -322,8 +381,10 @@ if ($ds) {
 		echo "<hr/> ";		
 	} else {	
 	echo "<h1><a href='ldapmanager.php?filter=" . $ldapFilterHex . "&detailcn=" . $info[$i]["cn"][0] . "&addresslist=" . $addressListHex . "'>" .$info[$i]["givenname"][0] . " " . $info[$i]["sn"][0] . "</a></h1>";
-	if ($info[$i]["mail"][0]) 
-		echo "<div class='descr'>" . $info[$i]["mail"][0] . "</div>";
+	if ($info[$i]["mail"]){	
+		if ($info[$i]["mail"][0]) 
+			echo "<div class='descr'>" . $info[$i]["mail"][0] . "</div>";
+	}
 	}
     }
 
@@ -370,7 +431,7 @@ if ($ds) {
 			<h1>Modifications</h1>
 			<div style="margin:10pt;">
 			<button id="bAdd" onclick="$( '#dialogAdd').dialog( 'open' );" style="width:100%;">Add new entry</button>
-			<button id="bChange" onclick="alert('coming soon');"style="width:100%;">Change active entry</button>
+			<button id="bChange" onclick="$( '#dialogChange').dialog( 'open' );"style="width:100%;">Change active entry</button>
 			<?php
 			echo "<button id=\"bDelete\" onclick=\"$('#dialogConfirmDelete').dialog( 'option', 'distName', '" . $distName . "' ); $('#dialogConfirmDelete').dialog( 'option', 'detailcn', '" . $detailcn . "' ); $( '#dialogConfirmDelete').dialog( 'open' );\" style=\"width:100%;\">";
 			?>
@@ -482,6 +543,107 @@ if ($ds) {
 		   <div id="dialogConfirmDelete" title="Delete active entry">
 				<p><span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>Item <span id="dialogDeleteSt">...</span> will be deleted. Please confirm.</p>
 			</div>
+
+			<div id="dialogChange" title="Modify active address book entry">
+				<div id="tabs_fields1">
+					    <ul>
+					      <li><a href="#tab-name1">Name</a></li>
+					      <li><a href="#tab-phone1">Phone</a></li>
+					      <li><a href="#tab-personal1">Personal details</a></li>
+					      <li><a href="#tab-business1">Business details</a></li>
+					      <li><a href="#tab-grouping1">Misc</a></li>
+					    </ul>
+					    <div id="tab-name1">
+						    <form>
+						    <fieldset>
+						        <label for="givenname1">Given name</label>
+						        <input type="text" name="givenname1" id="givenname1" class="text ui-widget-content ui-corner-all" readonly/>
+						        <label for="name1">Family name</label>
+						        <input type="text" name="name1" id="name1" class="text ui-widget-content ui-corner-all" readonly/>
+						        <label for="nickname1">Nick name</label>
+						        <input type="text" name="nickname1" id="nickname1" class="text ui-widget-content ui-corner-all" />
+						        <label for="email1">Email</label>
+						        <input type="text" name="email1" id="email1" value="" class="text ui-widget-content ui-corner-all" />
+						    </fieldset>
+						    </form>			
+					    </div>
+					    <div id="tab-phone1">
+						    <form>
+						    <fieldset>
+						        <label for="workphone1">Work phone</label>
+						        <input type="text" name="workphone1" id="workphone1" class="text ui-widget-content ui-corner-all" />
+						        <label for="homephone1">Home phone</label>
+						        <input type="text" name="homephone1" id="homephone1" class="text ui-widget-content ui-corner-all" />
+						        <label for="fax1">Fax</label>
+						        <input type="text" name="fax1" id="fax1" class="text ui-widget-content ui-corner-all" />
+						        <label for="mobile1">Mobile phone</label>
+						        <input type="text" name="mobile1" id="mobile1" value="" class="text ui-widget-content ui-corner-all" />
+						    </fieldset>
+						    </form>			
+					    </div>
+					    <div id="tab-personal1">
+						    <form>
+						    <fieldset>
+						        <label for="streetHome1">Street</label>
+						        <input type="text" name="streetHome1" id="streetHome1" class="text ui-widget-content ui-corner-all" />
+						        <label for="street2Home1">Street (more)</label>
+						        <input type="text" name="street2Home1" id="street2Home1" class="text ui-widget-content ui-corner-all" />
+						        <label for="cityHome1">City (Locality)</label>
+						        <input type="text" name="cityHome1" id="cityHome1" class="text ui-widget-content ui-corner-all" />
+						        <label for="stateHome1">State</label>
+						        <input type="text" name="stateHome1" id="stateHome1" value="" class="text ui-widget-content ui-corner-all" />
+						        <label for="zipHome1">Zip code</label>
+						        <input type="text" name="zipHome1" id="zipHome1" value="" class="text ui-widget-content ui-corner-all" />
+						        <label for="countryHome1">Country</label>
+						        <input type="text" name="countryHome1" id="countryHome1" value="" class="text ui-widget-content ui-corner-all" />
+						    </fieldset>
+						    </form>			
+					    </div>
+					    <div id="tab-business1">
+						    <form>
+						    <fieldset>
+						        <label for="titleBusiness1">Title/Position</label>
+						        <input type="text" name="titleBusiness1" id="titleBusiness1" class="text ui-widget-content ui-corner-all" />
+						        <label for="depBusiness1">Department</label>
+						        <input type="text" name="depBusiness1" id="depBusiness1" class="text ui-widget-content ui-corner-all" />
+						        <label for="orgBusiness1">Organizsation</label>
+						        <input type="text" name="orgBusiness1" id="orgBusiness1" class="text ui-widget-content ui-corner-all" />
+						        <label for="streetBusiness1">Street</label>
+						        <input type="text" name="streetBusiness1" id="streetBusiness1" class="text ui-widget-content ui-corner-all" />
+						        <label for="street2Business1">Street (more)</label>
+						        <input type="text" name="street2Business1" id="street2Business1" class="text ui-widget-content ui-corner-all" />
+						        <label for="cityBusiness1">City (Locality)</label>
+						        <input type="text" name="cityBusiness1" id="cityBusiness1" class="text ui-widget-content ui-corner-all" />
+						        <label for="stateBusiness1">State</label>
+						        <input type="text" name="stateBusiness1" id="stateBusiness1" value="" class="text ui-widget-content ui-corner-all" />
+						        <label for="zipBusiness1">Zip code</label>
+						        <input type="text" name="zipBusiness1" id="zipBusiness1" value="" class="text ui-widget-content ui-corner-all" />
+						        <label for="countryBusiness1">Country</label>
+						        <input type="text" name="countryBusiness1" id="countryBusiness1" value="" class="text ui-widget-content ui-corner-all" />
+						    </fieldset>
+						    </form>			
+					    </div>
+					    <div id="tab-grouping1">
+						    <form>
+						    <fieldset>
+						        <label for="otherWeb1">Web site</label>
+						        <input type="text" name="otherWeb1" id="otherWeb1" class="text ui-widget-content ui-corner-all" />
+						        <label for="otherDesc1">Description</label>
+						        <input type="text" name="otherDesc1" id="otherDesc1" class="text ui-widget-content ui-corner-all" />
+						        <label for="otherGroupCB1">Groups</label>
+									<div id="otherGroupCB1">
+									    <input type="checkbox" id="checkGroup11" checked="checked"/><label for="checkGroup11">jule</label>
+									    <input type="checkbox" id="checkGroup12" checked="checked"/><label for="checkGroup12">micha</label>
+									    <input type="checkbox" id="checkGroup13" /><label for="checkGroup13">fhh</label>
+									    <input type="checkbox" id="checkGroup14" checked="checked"/><label for="checkGroup14">gxp</label>
+									</div>
+						    </fieldset>
+						    </form>			
+					    </div>
+				
+									
+				</div>
+		   </div> <!-- dialogChange -->
 
 		</div>
 
