@@ -50,8 +50,29 @@ switch($action) {
 			    echo "Unable to connect to LDAP server";
 			}
 			break;
+	case "getEntryDetails":
+			$details_distName = $_REQUEST['details_distName'];
+			error_log("#DistName: " . $details_distName);
+			$ds=ldap_connect($ldapHost, $ldapPort);  // must be a valid LDAP server! 
+			if ($ds) {
+				ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
+				$r=ldap_bind($ds, $ldapWriteDN, $ldapWritePasswort);
+				$cnTmp = ldap_explode_dn($details_distName,1);
+				$cn = explode(" + ", $cnTmp[0]); 
+				error_log("#DistName [0]: " . $cn[0]);
+			   $sr=ldap_search($ds, $ldapDomain, "cn=" . $cn[0]);  
+				$info = ldap_get_entries($ds, $sr);
+    			for ($i=0; $i<$info["count"]; $i++) {
+					echo json_encode($info[$i]);	
+				}
+				ldap_unbind($ds);
+			} else {
+			    echo "Unable to connect to LDAP server";
+			}
+			break;
 	case "modifyItem":
-			//$mod_distName = $_REQUEST['mod_distName'];
+			$mod_distName = $_REQUEST['mod_distName'];
+			error_log($mod_distName);
 			$detail_name=$_REQUEST['familyName'];
 			$detail_fistname=$_REQUEST['givenName'];
 			$ds=ldap_connect($ldapHost, $ldapPort);  // must be a valid LDAP server! 
@@ -65,8 +86,8 @@ switch($action) {
 				   $info["cn"] =  $info["givenName"] . " " . $info["sn"]; //display name
 				   
 					foreach ($_REQUEST as $key=>$value) {
-						error_log("Key " . $key . "| Value " . $value);			
-						if( ( strcmp($key, "givenName"))  && ( strcmp($key, "familyName")) && ( strcmp($key, "action"))   ) {
+						if( ( strcmp($key, "givenName"))  && ( strcmp($key, "familyName")) && ( strcmp($key, "action")) && ( strcmp($key, "mod_distName"))  ) {
+							//error_log("Key " . $key . "| Value " . $value);			
 							$info[$key] = $value;
 						}
 					}
@@ -74,7 +95,8 @@ switch($action) {
 				   $info["objectclass"][0] = "inetOrgPerson";
 				   $info["objectclass"][1] = "mozillaAbPersonAlpha";
 				
-					$dn = "cn=" . $info["cn"] . "," . $ldapWriteOU;
+					$dn = $mod_distName;				
+					//$dn = "cn=" . $info["cn"] . "," . $ldapWriteOU;
 
 				ldap_modify($ds, $dn, $info);
 				ldap_unbind($ds);

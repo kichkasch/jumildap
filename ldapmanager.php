@@ -154,10 +154,9 @@ this web frontend is not capable of supporting this.
                 "Modify this entry": function() {
                 			parameters = {
                 					"action": "modifyItem",
-								  		"familyName": name1.val(),
-								  		"givenName": givenname1.val()
-//								  		"familyName": "Test",
-//								  		"givenName": "Aanton"
+                					"mod_distName": $( "#dialogChange" ).data("distName"),
+								  		"familyName": $('#name1').val(),
+								  		"givenName": $('#givenname1').val()
 								  		};
 								for (key in fields_mapping){
 									if ($("" + key + "1").val()){
@@ -193,10 +192,32 @@ this web frontend is not capable of supporting this.
                     $( this ).dialog( "close" );
                 }
             },
-            open: function() {
-            	$('#name1').val('Test');
-            	$('#givenname1').val('Aanton')
-               $('#tabs_fields1').tabs();
+				open: function() {
+               $('#tabs_fields1').tabs();					
+            	$.ajax({
+								  url: "ldap_mods.php",
+								  //dataType: 'json',
+								  data: {"action": "getEntryDetails", "details_distName": $( "#dialogChange" ).data("distName")}
+								}).done(function(data) {
+									console.log(data);
+//					            	$('#name1').val(data);
+//					            	$('#givenname1').val('Aanton' );
+//		                    		$('#email1').val(data['mail'][0]);
+									dataEnc = JSON.parse(data);
+								for (key in fields_mapping){
+									console.log(key + " ---> " + fields_mapping[key]);
+									if (fields_mapping[key].toLowerCase() in dataEnc) {
+										console.log("    **** FOUND");
+										$("" + key + "1").val(dataEnc[fields_mapping[key].toLowerCase()][0]);
+										}
+									else
+										{
+											$("" + key + "1").val("");
+											}
+										
+								}
+
+								});            	
                 
             }            
        });
@@ -431,8 +452,8 @@ if ($ds) {
 			<h1>Modifications</h1>
 			<div style="margin:10pt;">
 			<button id="bAdd" onclick="$( '#dialogAdd').dialog( 'open' );" style="width:100%;">Add new entry</button>
-			<button id="bChange" onclick="$( '#dialogChange').dialog( 'open' );"style="width:100%;">Change active entry</button>
 			<?php
+			echo "<button id=\"bChange\" onclick=\"$( '#dialogChange').data( 'distName', '" . $distName . "' ); $( '#dialogChange').dialog( 'open' );\"style=\"width:100%;\">Change active entry</button>";
 			echo "<button id=\"bDelete\" onclick=\"$('#dialogConfirmDelete').dialog( 'option', 'distName', '" . $distName . "' ); $('#dialogConfirmDelete').dialog( 'option', 'detailcn', '" . $detailcn . "' ); $( '#dialogConfirmDelete').dialog( 'open' );\" style=\"width:100%;\">";
 			?>
 			Delete active entry</button> 
