@@ -160,9 +160,16 @@ this web frontend is not capable of supporting this.
 								  		};
 								for (key in fields_mapping){
 									if ($("" + key + "1").val()){
+										//console.log("Changing attribute " + key + " -> " + $("" + key + "1").val());
 										parameters[fields_mapping[key]] = $("" + key + "1").val();
-									}
+									} else {
+										if ($("" + key + "1").data('oldValue')) {
+											//console.log("Deleting attribute " + key + " -> " + $("" + key + "1").data('oldValue'));
+											parameters[fields_mapping[key]] = '';
+											}								
+										}
 								}
+								/*
 								stGroups = "";
 								if ($('#checkGroup11').attr('checked')) {
 									stGroups = stGroups + 'jule,'; 
@@ -178,7 +185,7 @@ this web frontend is not capable of supporting this.
 								}
 								if (stGroups){
 									parameters['mozillaCustom4'] = stGroups;
-								}
+								}*/
 								$.ajax({
 								  url: "ldap_mods.php",
 								  data: parameters
@@ -199,24 +206,34 @@ this web frontend is not capable of supporting this.
 								  //dataType: 'json',
 								  data: {"action": "getEntryDetails", "details_distName": $( "#dialogChange" ).data("distName")}
 								}).done(function(data) {
-									console.log(data);
-//					            	$('#name1').val(data);
-//					            	$('#givenname1').val('Aanton' );
-//		                    		$('#email1').val(data['mail'][0]);
+									//console.log(data);
 									dataEnc = JSON.parse(data);
+				            	$('#name1').val(dataEnc['sn'][0]);
+				            	$('#givenname1').val(dataEnc['givenname'][0] );
 								for (key in fields_mapping){
-									console.log(key + " ---> " + fields_mapping[key]);
 									if (fields_mapping[key].toLowerCase() in dataEnc) {
-										console.log("    **** FOUND");
 										$("" + key + "1").val(dataEnc[fields_mapping[key].toLowerCase()][0]);
+										$("" + key + "1").data("oldValue", dataEnc[fields_mapping[key].toLowerCase()][0]);
 										}
 									else
 										{
 											$("" + key + "1").val("");
 											}
-										
 								}
-
+								/*if ('mozillacustom4' in dataEnc) {
+									groups = dataEnc['mozillacustom4'][0];
+									console.log(groups);
+									$('#checkGroup11').prop( "checked", (groups.indexOf("jule") >= 0) );
+									$('#checkGroup12').prop( "checked", (groups.indexOf("micha") >= 0) );
+									$('#checkGroup13').prop( "checked", (groups.indexOf("fhh") >= 0) );
+									$('#checkGroup14').prop( "checked", (groups.indexOf("gxp") >= 0) );
+								} else {
+									$('#checkGroup11').prop( "checked", false);
+									$('#checkGroup12').prop( "checked", false);
+									$('#checkGroup13').prop( "checked", false);
+									$('#checkGroup14').prop( "checked", false);
+									}
+								*/
 								});            	
                 
             }            
@@ -653,10 +670,10 @@ if ($ds) {
 						        <input type="text" name="otherDesc1" id="otherDesc1" class="text ui-widget-content ui-corner-all" />
 						        <label for="otherGroupCB1">Groups</label>
 									<div id="otherGroupCB1">
-									    <input type="checkbox" id="checkGroup11" checked="checked"/><label for="checkGroup11">jule</label>
-									    <input type="checkbox" id="checkGroup12" checked="checked"/><label for="checkGroup12">micha</label>
+									    <input type="checkbox" id="checkGroup11" /><label for="checkGroup11">jule</label>
+									    <input type="checkbox" id="checkGroup12" /><label for="checkGroup12">micha</label>
 									    <input type="checkbox" id="checkGroup13" /><label for="checkGroup13">fhh</label>
-									    <input type="checkbox" id="checkGroup14" checked="checked"/><label for="checkGroup14">gxp</label>
+									    <input type="checkbox" id="checkGroup14" /><label for="checkGroup14">gxp</label>
 									</div>
 						    </fieldset>
 						    </form>			

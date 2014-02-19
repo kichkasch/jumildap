@@ -52,14 +52,12 @@ switch($action) {
 			break;
 	case "getEntryDetails":
 			$details_distName = $_REQUEST['details_distName'];
-			error_log("#DistName: " . $details_distName);
 			$ds=ldap_connect($ldapHost, $ldapPort);  // must be a valid LDAP server! 
 			if ($ds) {
 				ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
 				$r=ldap_bind($ds, $ldapWriteDN, $ldapWritePasswort);
 				$cnTmp = ldap_explode_dn($details_distName,1);
 				$cn = explode(" + ", $cnTmp[0]); 
-				error_log("#DistName [0]: " . $cn[0]);
 			   $sr=ldap_search($ds, $ldapDomain, "cn=" . $cn[0]);  
 				$info = ldap_get_entries($ds, $sr);
     			for ($i=0; $i<$info["count"]; $i++) {
@@ -72,7 +70,7 @@ switch($action) {
 			break;
 	case "modifyItem":
 			$mod_distName = $_REQUEST['mod_distName'];
-			error_log($mod_distName);
+//			error_log($mod_distName);
 			$detail_name=$_REQUEST['familyName'];
 			$detail_fistname=$_REQUEST['givenName'];
 			$ds=ldap_connect($ldapHost, $ldapPort);  // must be a valid LDAP server! 
@@ -87,8 +85,11 @@ switch($action) {
 				   
 					foreach ($_REQUEST as $key=>$value) {
 						if( ( strcmp($key, "givenName"))  && ( strcmp($key, "familyName")) && ( strcmp($key, "action")) && ( strcmp($key, "mod_distName"))  ) {
-							//error_log("Key " . $key . "| Value " . $value);			
-							$info[$key] = $value;
+							if ($value) { 		
+								$info[$key] = $value;
+							} else {
+								$info[$key] = array();
+								}
 						}
 					}
 				   
