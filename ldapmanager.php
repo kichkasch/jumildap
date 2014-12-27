@@ -33,10 +33,10 @@ this web frontend is not capable of supporting this.
 <meta http-equiv="content-type" content="text/html; charset=iso-8859-1"/> 
 <meta name="description" content="description"/>
 <meta name="keywords" content="keywords"/> 
-<meta name="author" content="Michael" /> 
+<meta name="author" content="Michael Pilgermann" /> 
 <link rel="stylesheet" type="text/css" href="default.css" media="screen"/>
 
-    <link rel="stylesheet" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css" />
+    <link rel="stylesheet" href="jquery-ui.css" />
     
     <style>
         label, input { display:block; }
@@ -48,8 +48,8 @@ this web frontend is not capable of supporting this.
         .ui-dialog .ui-state-error { padding: .3em; }
         .validateTips { border: 1px solid transparent; padding: 0.3em; }
     </style>
-    <script src="http://code.jquery.com/jquery-1.8.3.js"></script>
-    <script src="http://code.jquery.com/ui/1.9.2/jquery-ui.js"></script>
+    <script src="script/jquery-1.8.3.js"></script>
+    <script src="script/jquery-ui.js"></script>
 
 <title>JuMiLDAP Manager</title>
 
